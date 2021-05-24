@@ -79,9 +79,12 @@ web_modules/
 .next
 out
 
-
-
+/node_modules
+npm-debug.log
 .DS_Store
+/*.env
+
+
 
 # Nuxt.js build / generate output
 .nuxt

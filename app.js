@@ -28,7 +28,8 @@ mongoose.set("useCreateIndex",true);
 
 const userSchema = new mongoose.Schema( {
     email: String,
-    password: String
+    password: String,
+    secret: String
 });
 
 userSchema.plugin(passportLocalMongoose)
@@ -54,7 +55,19 @@ app.get("/",function(req,res){
 
 app.get("/secrets",function(req,res){
     if (req.isAuthenticated()){
-    res.render("secrets");}
+    
+    User.find({"secret":{$ne:null}},function(err,foundUser){
+        if (err){
+            console.log(err);
+        }
+        else{
+            if(foundUser){
+                res.render("secrets",{usersWithSecrets : foundUser});
+            }
+        }
+    })
+
+}
     else{
         res.redirect("/login")
     }
@@ -65,6 +78,31 @@ app.get("/logout",function(req,res){
     res.redirect("/")
 })
 
+app.get("/submit",function(req,res){
+    if (req.isAuthenticated()){
+        res.render("submit");}
+        else{
+            res.redirect("/login")
+        }
+})
+
+app.post("/submit", function(req, res){
+    const submittedSecret = req.body.secret;
+  
+  
+    User.findById(req.user.id, function(err, foundUser){
+      if (err) {
+        console.log(err);
+      } else {
+        if (foundUser) {
+          foundUser.secret = submittedSecret;
+          foundUser.save(function(){
+            res.redirect("/secrets");
+          });
+        }
+      }
+    });
+  });
 app.post("/register",function(req,res){
 
     User.register({username: req.body.username}, req.body.password, function(err,user){
@@ -73,12 +111,12 @@ app.post("/register",function(req,res){
             res.redirect("/register");
         }
         else{
-            passport.authenticate("local"(req, res, function(){
+            passport.authenticate("local")(req, res, function(){
                 res.redirect("/secrets")
 
-            }))
+            });
         }
-    })
+    });
 });
 
 
@@ -95,7 +133,7 @@ app.post("/login",function(req,res){
         passport.authenticate("local")(req, res, function(){
         res.redirect("/secrets");
 
-        })
+        });
      }
  });
 });
