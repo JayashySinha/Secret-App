@@ -11,6 +11,7 @@ const GoogleStrategy = require( 'passport-google-oauth20' ).Strategy;
 const findOrCreate= require("mongoose-findorcreate")
 const FacebookStrategy = require( 'passport-facebook' ).Strategy;
 
+
 const app = express();
 
 app.use(express.static("public"));
